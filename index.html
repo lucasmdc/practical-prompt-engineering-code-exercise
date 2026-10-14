@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0c111b">
+    <title>Prompt Library</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="page-header">
+        <p class="eyebrow"><span class="status-dot"></span> PERSONAL WORKSPACE</p>
+        <h1>Prompt<span>Library</span></h1>
+        <p class="subtitle">A home for the prompts you reach for most.</p>
+      </header>
+
+      <section class="editor-panel" aria-labelledby="form-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">PROMPT EDITOR</p>
+            <h2 id="form-heading">Add a prompt</h2>
+          </div>
+          <span class="editor-mark" aria-hidden="true">&lt;/&gt;</span>
+        </div>
+
+        <form id="prompt-form">
+          <label for="prompt-title">Title</label>
+          <input
+            id="prompt-title"
+            name="title"
+            type="text"
+            placeholder="e.g. Explain a codebase"
+            required
+          >
+
+          <label for="prompt-content">Content</label>
+          <textarea
+            id="prompt-content"
+            name="content"
+            rows="5"
+            placeholder="Write or paste your prompt..."
+            required
+          ></textarea>
+
+          <button class="save-button" type="submit">
+            <span aria-hidden="true">+</span>
+            Save prompt
+          </button>
+          <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="library-section" aria-labelledby="library-heading">
+        <div class="library-heading">
+          <div>
+            <p class="eyebrow">YOUR COLLECTION</p>
+            <h2 id="library-heading">Saved prompts <span id="prompt-count">0</span></h2>
+          </div>
+        </div>
+        <div id="prompt-list" class="prompt-grid"></div>
+      </section>
+    </main>
+  </body>
+</html>
