@@ -198,7 +198,9 @@ textarea:focus {
 .save-button:focus-visible,
 .delete-button:focus-visible,
 .star-button:focus-visible,
-.clear-rating-button:focus-visible {
+.clear-rating-button:focus-visible,
+.note-save-button:focus-visible,
+.note-delete-button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
@@ -279,6 +281,98 @@ textarea:focus {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow-wrap: anywhere;
+}
+
+.notes-section {
+  margin: 0 0 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.notes-heading {
+  margin: 0 0 11px;
+  color: #c5d0df;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.note-list {
+  display: grid;
+  gap: 12px;
+}
+
+.note-item {
+  display: grid;
+  gap: 7px;
+}
+
+.note-item label,
+.add-note-form label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.note-item textarea,
+.add-note-form textarea {
+  min-height: 72px;
+  font-size: 0.8rem;
+}
+
+.note-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.note-save-button,
+.note-delete-button {
+  padding: 5px 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.note-save-button {
+  color: var(--accent);
+}
+
+.note-save-button:hover {
+  color: var(--accent-hover);
+}
+
+.note-delete-button {
+  color: var(--danger);
+}
+
+.note-delete-button:hover {
+  color: #ffb0ba;
+}
+
+.add-note-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 13px;
+}
+
+.notes-section .notes-empty,
+.notes-section .note-status {
+  display: block;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.notes-section .note-status:not(:empty) {
+  margin-top: 7px;
+  color: var(--accent);
+}
+
+.notes-section .note-status.error {
+  color: var(--danger);
 }
 
 .card-footer {

@@ -21,6 +21,167 @@ function savePrompts(prompts) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts));
 }
 
+function updatePromptNotes(promptId, update) {
+  const prompts = loadPrompts();
+  const prompt = prompts.find((item) => item.id === promptId);
+
+  if (!prompt) {
+    throw new Error(`Prompt not found: ${promptId}`);
+  }
+
+  if (!Array.isArray(prompt.notes)) {
+    prompt.notes = [];
+  }
+
+  update(prompt, prompt.notes);
+  savePrompts(prompts);
+}
+
+function createNotesSection(prompt) {
+  const section = document.createElement("section");
+  section.className = "notes-section";
+  section.setAttribute("aria-label", `Notes for ${prompt.title}`);
+
+  const heading = document.createElement("h4");
+  heading.className = "notes-heading";
+  heading.textContent = "Notes";
+
+  const noteList = document.createElement("div");
+  noteList.className = "note-list";
+
+  const notes = Array.isArray(prompt.notes) ? prompt.notes : [];
+  if (notes.length === 0) {
+    const emptyState = document.createElement("p");
+    emptyState.className = "notes-empty";
+    emptyState.textContent = "No notes yet.";
+    noteList.append(emptyState);
+  }
+
+  notes.forEach((note) => {
+    const item = document.createElement("div");
+    item.className = "note-item";
+
+    const label = document.createElement("label");
+    label.htmlFor = `note-${note.id}`;
+    label.textContent = "Note";
+
+    const input = document.createElement("textarea");
+    input.id = `note-${note.id}`;
+    input.rows = 3;
+    input.value = note.content;
+    input.setAttribute("aria-label", `Note for ${prompt.title}`);
+
+    const actions = document.createElement("div");
+    actions.className = "note-actions";
+
+    const saveButton = document.createElement("button");
+    saveButton.className = "note-save-button";
+    saveButton.type = "button";
+    saveButton.textContent = "Save";
+    saveButton.addEventListener("click", () => {
+      const content = input.value.trim();
+      if (!content) {
+        setStatus("Enter some note text before saving.", true);
+        input.focus();
+        return;
+      }
+
+      try {
+        updatePromptNotes(prompt.id, (_currentPrompt, currentNotes) => {
+          const currentNote = currentNotes.find((itemNote) => itemNote.id === note.id);
+          if (!currentNote) {
+            throw new Error(`Note not found: ${note.id}`);
+          }
+          currentNote.content = content;
+          currentNote.updatedAt = Date.now();
+        });
+        input.value = content;
+        setStatus("Note saved.");
+      } catch (error) {
+        setStatus("Could not save the note. Check browser storage and try again.", true);
+        console.error("Unable to save prompt note:", error);
+      }
+    });
+
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "note-delete-button";
+    deleteButton.type = "button";
+    deleteButton.textContent = "Delete";
+    deleteButton.setAttribute("aria-label", `Delete note for ${prompt.title}`);
+    deleteButton.addEventListener("click", () => {
+      try {
+        updatePromptNotes(prompt.id, (currentPrompt, currentNotes) => {
+          currentPrompt.notes = currentNotes.filter((itemNote) => itemNote.id !== note.id);
+        });
+        renderPrompts();
+      } catch (error) {
+        setStatus("Could not delete the note. Check browser storage and try again.", true);
+        console.error("Unable to delete prompt note:", error);
+      }
+    });
+
+    actions.append(saveButton, deleteButton);
+    item.append(label, input, actions);
+    noteList.append(item);
+  });
+
+  const addForm = document.createElement("form");
+  addForm.className = "add-note-form";
+
+  const addLabel = document.createElement("label");
+  addLabel.htmlFor = `new-note-${prompt.id}`;
+  addLabel.textContent = "Add a note";
+
+  const addInput = document.createElement("textarea");
+  addInput.id = `new-note-${prompt.id}`;
+  addInput.rows = 3;
+  addInput.placeholder = "Write a note for this prompt...";
+
+  const addButton = document.createElement("button");
+  addButton.className = "note-save-button";
+  addButton.type = "submit";
+  addButton.textContent = "Add note";
+
+  const status = document.createElement("p");
+  status.className = "note-status";
+  status.setAttribute("role", "status");
+  status.setAttribute("aria-live", "polite");
+
+  function setStatus(message, isError = false) {
+    status.textContent = message;
+    status.classList.toggle("error", isError);
+  }
+
+  addForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const content = addInput.value.trim();
+
+    if (!content) {
+      setStatus("Enter some note text before adding it.", true);
+      addInput.focus();
+      return;
+    }
+
+    try {
+      updatePromptNotes(prompt.id, (_currentPrompt, currentNotes) => {
+        currentNotes.push({
+          id: crypto.randomUUID(),
+          content,
+          updatedAt: Date.now(),
+        });
+      });
+      renderPrompts();
+    } catch (error) {
+      setStatus("Could not add the note. Check browser storage and try again.", true);
+      console.error("Unable to add prompt note:", error);
+    }
+  });
+
+  addForm.append(addLabel, addInput, addButton);
+  section.append(heading, noteList, addForm, status);
+  return section;
+}
+
 function createPromptCard(prompt) {
   const card = document.createElement("article");
   card.className = "prompt-card";
@@ -84,7 +245,7 @@ function createPromptCard(prompt) {
   deleteButton.addEventListener("click", () => deletePrompt(prompt.id));
 
   footer.append(ratingControl, deleteButton);
-  card.append(title, preview, footer);
+  card.append(title, preview, createNotesSection(prompt), footer);
   return card;
 }
 
